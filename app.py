@@ -2,7 +2,9 @@ import streamlit as st
 import pickle
 import pandas as pd
 
-# Load trained model
+# ---------------------------
+# Load trained pipeline model
+# ---------------------------
 model = pickle.load(open("car_price_model.pkl", "rb"))
 
 # Load dataset (for dropdown values)
@@ -22,13 +24,8 @@ st.set_page_config(page_title="Car Price Predictor", page_icon="🚗", layout="c
 # Custom CSS for styling
 st.markdown("""
     <style>
-        .main {
-            background-color: #f8f9fa;
-        }
-        h1 {
-            text-align: center;
-            color: #1a73e8;
-        }
+        .main { background-color: #f8f9fa; }
+        h1 { text-align: center; color: #1a73e8; }
         .stButton>button {
             background-color: #1a73e8;
             color: white;
@@ -82,9 +79,9 @@ st.markdown("---")
 st.subheader("📝 Enter Car Details")
 
 company = st.selectbox("🏢 Select Company", companies)
-car_model = st.selectbox("🚘 Select Car Model", [m for m in models if company in m])
+car_model = st.selectbox("🚘 Select Car Model", df[df["company"] == company]["name"].unique())
 category = st.selectbox("📂 Car Category", ["Hatchback", "Sedan", "SUV", "MUV", "Coupe", "Convertible", "Wagon"])
-year = st.number_input("📅 Year of Car", min_value=1990, max_value=2025, step=1)
+year = st.number_input("📅 Year of Car", min_value=1990, max_value=int(df["year"].max()), step=1)
 kms_driven = st.number_input("📍 Kilometers Driven", min_value=0, step=1000)
 fuel_type = st.selectbox("⛽ Fuel Type", ["Petrol", "Diesel", "CNG", "LPG", "Electric"])
 
@@ -98,13 +95,15 @@ if st.button("🔮 Predict Price"):
         "year": year,
         "kms_driven": kms_driven,
         "fuel_type": fuel_type,
-        "company": company
+        "company": company,
+        "name": car_model,    # include if trained with car model
+        "category": category  # include if trained with category
     }])
 
+    # Predict
     price = model.predict(input_data)[0]
 
     st.success(f"💰 Predicted Price: **₹ {int(price):,}**")
-
     st.info(f"📌 Car: **{company} {car_model}** | Category: **{category}** | Year: **{year}**")
 
 # ---------------------------
