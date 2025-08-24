@@ -2,12 +2,8 @@ import streamlit as st
 import pickle
 import pandas as pd
 
-# ---------------------------
-# Load trained pipeline model
-# ---------------------------
 model = pickle.load(open("car_price_model.pkl", "rb"))
 
-# Load dataset (for dropdown values)
 df = pd.read_csv("quikr_car.csv")
 df = df.dropna()
 df["company"] = df["company"].str.strip()
@@ -16,12 +12,8 @@ df["name"] = df["name"].str.strip()
 companies = sorted(df["company"].unique())
 models = sorted(df["name"].unique())
 
-# ---------------------------
-# Page Config
-# ---------------------------
 st.set_page_config(page_title="Car Price Predictor", page_icon="🚗", layout="centered")
 
-# Custom CSS for styling
 st.markdown("""
     <style>
         .main { background-color: #f8f9fa; }
@@ -60,9 +52,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------
-# Header
-# ---------------------------
 st.markdown("""
     <div class="header">
         <h1>🚗 Car Price Predictor</h1>
@@ -73,9 +62,6 @@ st.markdown("""
 st.markdown("### Predict the resale value of your car with AI 🔮")
 st.markdown("---")
 
-# ---------------------------
-# User Inputs
-# ---------------------------
 st.subheader("📝 Enter Car Details")
 
 company = st.selectbox("🏢 Select Company", companies)
@@ -87,28 +73,21 @@ fuel_type = st.selectbox("⛽ Fuel Type", ["Petrol", "Diesel", "CNG", "LPG", "El
 
 st.markdown("---")
 
-# ---------------------------
-# Prediction
-# ---------------------------
 if st.button("🔮 Predict Price"):
     input_data = pd.DataFrame([{
         "year": year,
         "kms_driven": kms_driven,
         "fuel_type": fuel_type,
         "company": company,
-        "name": car_model,    # include if trained with car model
-        "category": category  # include if trained with category
+        "name": car_model,
+        "category": category
     }])
 
-    # Predict
     price = model.predict(input_data)[0]
 
     st.success(f"💰 Predicted Price: **₹ {int(price):,}**")
     st.info(f"📌 Car: **{company} {car_model}** | Category: **{category}** | Year: **{year}**")
 
-# ---------------------------
-# Footer
-# ---------------------------
 st.markdown("""
     <div class="footer">
         <p>© 2025 Car Price Predictor | Developed by <b>Aditya Singh</b></p>
